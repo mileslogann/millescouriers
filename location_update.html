@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Update</title>
+    <!-- Add these scripts to your HTML -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <style>
+        body {
+            background-color: #2196F3;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        form {
+            background-color: #1565C0;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        label,
+        input {
+            display: block;
+            margin-bottom: 10px;
+            color: rgb(12, 12, 12);
+        }
+
+        input {
+            width: 100%;
+            padding: 5px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .message {
+            margin-top: 10px;
+        }
+
+        .success {
+            color: #4CAF50;
+        }
+
+        .error {
+            color: #F44336;
+        }
+    </style>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAD3fc9vlLyOIpW9rS3kktkxwWB1htn4vE",
+            authDomain: "trck-15337.firebaseapp.com",
+            projectId: "trck-15337",
+            storageBucket: "trck-15337.appspot.com",
+            messagingSenderId: "521709429780",
+            appId: "1:521709429780:web:651ea6b99173c82d9a3301D"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Reference to your Firebase Realtime Database
+        const database = firebase.database();
+
+        document.getElementById('location-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const form = document.getElementById('location-form');
+            const latitude1 = parseFloat(form.latitude1.value);
+            const longitude1 = parseFloat(form.longitude1.value);
+            const latitude2 = parseFloat(form.latitude2.value);
+            const longitude2 = parseFloat(form.longitude2.value);
+            const latitude3 = parseFloat(form.latitude3.value);
+            const longitude3 = parseFloat(form.longitude3.value);
+            const statusLatitude = parseFloat(form.statusLatitude.value);
+            const statusLongitude = parseFloat(form.statusLongitude.value);
+            const statusMessage = form.statusMessage.value;
+
+            const selectedLocations = [];
+
+            if (!isNaN(latitude1) && !isNaN(longitude1)) {
+                selectedLocations.push(`${latitude1},${longitude1}`);
+            }
+            if (!isNaN(latitude2) && !isNaN(longitude2)) {
+                selectedLocations.push(`${latitude2},${longitude2}`);
+            }
+            if (!isNaN(latitude3) && !isNaN(longitude3)) {
+                selectedLocations.push(`${latitude3},${longitude3}`);
+            }
+
+            try {
+                // Store the selected locations, status location, and status message in Firebase Realtime Database
+                await database.ref('locations').set(selectedLocations);
+                await database.ref('statusLocation').set(`${statusLatitude},${statusLongitude}`);
+                await database.ref('statusMessage').set(statusMessage);
+
+                // Show success message
+                showMessage('success', 'Locations updated successfully');
+            } catch (error) {
+                // Show error message
+                showMessage('error', 'Error updating locations');
+            }
+        });
+
+        function showMessage(type, message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = message;
+            messageDiv.classList.add('message', type);
+
+            const form = document.getElementById('location-form');
+            form.appendChild(messageDiv);
+
+            // Clear the message after 3 seconds
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+    </script>
+</head>
+
+<body>
+    <!-- Your location selection form here -->
+    <form id="location-form">
+        <!-- Input fields for latitude and longitude for Point 1 -->
+        <label for="latitude1">Latitude for Point 1:</label>
+        <input type="number" id="latitude1" name="latitude1" step="any" required>
+
+        <label for="longitude1">Longitude for Point 1:</label>
+        <input type="number" id="longitude1" name="longitude1" step="any" required>
+
+        <!-- Input fields for latitude and longitude for Point 2 -->
+        <label for="latitude2">Latitude for Point 2:</label>
+        <input type="number" id="latitude2" name="latitude2" step="any">
+
+        <label for="longitude2">Longitude for Point 2:</label>
+        <input type="number" id="longitude2" name="longitude2" step="any">
+
+        <!-- Input fields for latitude and longitude for Point 3 -->
+        <label for="latitude3">Latitude for Point 3:</label>
+        <input type="number" id="latitude3" name="latitude3" step="any">
+
+        <label for="longitude3">Longitude for Point 3:</label>
+        <input type="number" id="longitude3" name="longitude3" step="any">
+
+        <!-- Input fields for On Route status -->
+        <label for="statusLatitude">Latitude for On Route Status:</label>
+        <input type="number" id="statusLatitude" name="statusLatitude" step="any" required>
+
+        <label for="statusLongitude">Longitude for On Route Status:</label>
+        <input type="number" id="statusLongitude" name="statusLongitude" step="any" required>
+
+        <label for="statusMessage">Status Message:</label>
+        <input type="text" id="statusMessage" name="statusMessage" required>
+
+        <button type="submit">Update Location</button>
+    </form>
+</body>
+
+</html>

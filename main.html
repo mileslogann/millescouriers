@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+    <!-- Include Leaflet library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+    <div id="map" style="height: 400px;"></div>
+
+    <script>
+        var map = L.map('map').setView([0, 0], 3);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var routeCoordinates = [
+            [35.3191, 36.5852], // Syria (Starting point)
+            [28.6139, 77.2090], // Delhi International Airport (Intermediate point)
+            [37.0902, -95.7129] // United States (Final destination)
+        ];
+
+        L.polyline(routeCoordinates, {
+            color: '#ff0000',
+            weight: 3
+        }).addTo(map);
+
+        // Initial marker for item on route
+        var itemOnRoute = L.marker([35.3191, 36.5852]).addTo(map);
+        itemOnRoute.bindPopup('<b>Item on Route</b><br>Status: <span style="color: orange;">Pending for Inspections and Scanning</span>').openPopup();
+
+        var positionIndex = 1; // Start from Delhi International Airport (Intermediate point)
+
+        function updatePosition() {
+            itemOnRoute.setLatLng(routeCoordinates[positionIndex]);
+            if (positionIndex === 2) {
+                itemOnRoute.bindPopup('<b>Item on Route</b><br>Status: <span style="color: green;">Reached United States</span>').openPopup();
+            } else {
+                itemOnRoute.bindPopup('<b>Item on Route</b><br>Status: <span style="color: orange;">Pending for Inspections and Scanning</span>').openPopup();
+            }
+            
+            positionIndex = (positionIndex + 1) % routeCoordinates.length;
+
+            setTimeout(updatePosition, 48 * 60 * 60 * 1000); // Update every 48 hours
+        }
+
+        // Start the position update loop
+        updatePosition();
+    </script>
+</body>
+</html>
